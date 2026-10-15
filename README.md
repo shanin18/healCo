@@ -3,7 +3,7 @@
 Static browser demo. No backend, login or live data. Everything is synthetic.
 
 ## Files
-- `index.html`: the whole app (HTML, CSS, JS). No build step, no dependencies.
+- `index.html`: the whole app (HTML, CSS, JS). No build step, no libraries. The IBM Plex Sans font loads from Google Fonts and falls back to system fonts offline.
 - `synthetic-dataset.json`: the dataset reference. Its values are also embedded in `index.html` (constants `HIST`, `ONG`, `seed()`). Edit both if you change the data.
 
 ## Run locally

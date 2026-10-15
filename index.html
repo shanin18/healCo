@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Monitoring Demo (Synthetic Data)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f4f6f7;--card:#fff;--ink:#17252f;--mute:#5b6b76;--line:#d9e0e4;--accent:#0c6e63;--accent-ink:#fff;--warn:#a96a0c;--bad:#b83b2e;--ok:#1f7a45;--tint:#e6f1ef;color-scheme:light}
@@ -52,14 +55,56 @@ svg text{fill:var(--mute);font-size:11px}
 .flow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.step{flex:1 1 130px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;cursor:pointer;color:var(--ink)}.step[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}.step b{display:block}.step span{color:var(--mute);font-size:.85rem}.bar{background:var(--accent);height:26px;border-radius:4px;min-width:2px}.frow{display:grid;grid-template-columns:120px 1fr 150px;gap:10px;align-items:center;margin-bottom:8px}
 @media (max-width:640px){.sl,.frow{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+:root{--side:#12333a;--side-ink:#cfe3e0;--side-act:#1e4d55;--side-accent:#5fd0be}
+@media (prefers-color-scheme:dark){:root:not([data-theme='light']){--side:#0a1115;--side-act:#173039}}
+body{font-family:'IBM Plex Sans','Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.005em}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.side{background:var(--side);color:var(--side-ink);padding:22px 14px 18px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh;align-self:start}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--side-accent);display:grid;place-items:center;color:#0b2a2f}
+.brand b{display:block;color:#fff;font-size:1rem;font-weight:600;line-height:1.2}
+.brand span{font-size:.78rem;opacity:.75}
+.side nav{display:flex;flex-direction:column;gap:2px;border:0;margin:0;flex:1}
+.side nav button{display:flex;align-items:center;gap:11px;width:100%;border:0;border-radius:8px;padding:10px 12px;background:none;color:var(--side-ink);font-weight:500;text-align:left;cursor:pointer}
+.side nav button i{display:grid;place-items:center;opacity:.85}
+.side nav button:hover{background:var(--side-act)}
+.side nav button[aria-current='true']{background:var(--side-act);color:#fff;box-shadow:inset 3px 0 0 var(--side-accent)}
+.side nav .badge{margin-left:auto}
+.side-foot{display:flex;flex-direction:column;gap:10px;font-size:.78rem;opacity:.95}
+.side-foot .btn{background:transparent;color:var(--side-ink);border:1px solid rgba(255,255,255,.28);width:100%}
+.side-foot .btn:hover{background:var(--side-act)}
+.content{padding:26px 34px 48px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+h1{font-size:1.65rem;font-weight:600;letter-spacing:-.015em;margin:0}
+#psub{margin:4px 0 0;color:var(--mute)}
+.pill{background:var(--tint);color:var(--accent);border:1px solid var(--line);padding:4px 12px;border-radius:99px;font-size:.8rem;font-weight:600;white-space:nowrap}
+main{max-width:1120px}
+.card,.kpi{box-shadow:0 1px 2px rgba(16,40,50,.07);border-radius:12px}
+.card{padding:18px}
+.kpi{border-top:3px solid var(--accent);padding:14px 16px}
+.kpi b{font-size:1.8rem;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi span{font-size:.82rem}
+th{font-weight:600;color:var(--mute);font-size:.78rem;background:var(--bg)}
+tr:hover td{background:var(--tint)}
+.tag{background:color-mix(in srgb,currentColor 12%,transparent);border-color:transparent}
+.btn{border-radius:8px;padding:9px 16px;transition:filter .15s}
+.btn:hover:not([disabled]){filter:brightness(1.1)}
+.seg{border-radius:10px;box-shadow:0 1px 2px rgba(16,40,50,.07)}
+.banner{border-radius:10px}
+@media (max-width:820px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}.side nav{flex-direction:row;overflow-x:auto;flex-basis:100%;order:3}.side nav button{width:auto;white-space:nowrap}.side-foot{margin-left:auto;flex-direction:row;align-items:center}.side-foot .btn{width:auto}.side-foot small{display:none}.content{padding:16px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header><h1>Program Monitoring Demo</h1><button class="btn alt" id="reset">Reset demo</button></header>
-<div class="banner">All data on this page is synthetic. Scenario results are illustrative, not guaranteed outcomes.</div>
-<nav role="tablist" id="tabs"></nav>
+<div class="app">
+<aside class="side">
+<div class="brand"><span class="logo"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></span><div><b>Program Monitor</b><span>Demo workspace</span></div></div>
+<nav id="tabs" aria-label="Sections"></nav>
+<div class="side-foot"><button class="btn" id="reset">Reset demo</button><small>Synthetic data only. Scenarios are illustrative, not guaranteed results.</small></div>
+</aside>
+<div class="content">
+<header class="top"><div><h1 id="ptitle"></h1><p id="psub"></p></div><span class="pill">Synthetic data</span></header>
 <main id="main"></main>
+</div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -69,6 +114,9 @@ const ONG={labels:["Jan 26","Feb 26","Mar 26","Apr 26","May 26","Jun 26"],plan:[
 files:["feed_2026-01.csv","feed_2026-02.csv","feed_2026-03.csv","feed_2026-04.csv","feed_2026-05.csv","feed_2026-06.csv"],
 recv:["2026-02-04","2026-03-05","2026-04-06","2026-05-05","2026-06-04","2026-07-06"]};
 const TH=0.10, POP=12000, RATE=0.22;
+const ic=d=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICON={mon:ic('<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>'),asm:ic('<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>'),act:ic('<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>'),log:ic('<path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6"/>'),fun:ic('<path d="M3 4h18l-7 8v7l-4 2v-9z"/>'),jny:ic('<circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h10"/>')};
+const PT={mon:["Monitoring","Actual vs plan across historical and ongoing periods"],asm:["Intervention assumptions","Illustrative scenarios, not guaranteed results"],act:["Suggested review actions","Preconfigured suggestions with scripted explanations"],log:["Decision log","Source, rule, rationale, owner and event history"],fun:["Engagement funnel","Simulated, driven by your assumptions"],jny:["End-to-end journey","From data intake to reporting"]};
 const RULE="Variance beyond +/-10% vs plan";
 let S, tab="mon";
 const $=s=>document.querySelector(s);
@@ -141,8 +189,8 @@ const st=[["Data intake",(1+S.arrived)+" files received","Files arrive with sour
 return `<p style="margin-top:0">Select a step. Counts update as you use the other tabs.</p><div class="flow">`+st.map((s,i)=>`<button class="step" aria-pressed="${S.j===i}" data-j="${i}"><b>${i+1}. ${s[0]}</b><span>${s[1]}</span></button>`).join("")+`</div><div class="card"><b>${st[S.j][0]}</b><p style="margin-bottom:0">${st[S.j][2]}</p></div>`}
 function render(){
 const open=S.dec.filter(d=>d.status==="Open").length;
-$("#tabs").innerHTML=[["mon","Monitoring"],["asm","Assumptions"],["act","Suggested actions"],["log","Decision log"+(open?`<span class="badge">${open}</span>`:"")],["fun","Funnel"],["jny","Journey"]].map(t=>`<button role="tab" aria-selected="${tab===t[0]}" data-t="${t[0]}">${t[1]}</button>`).join("");
-$("#main").innerHTML=tab==="mon"?monitoring():tab==="asm"?assumptions():tab==="act"?actions():tab==="fun"?funnel():tab==="jny"?journey():log()}
+$("#tabs").innerHTML=[["mon","Monitoring"],["asm","Assumptions"],["act","Suggested actions"],["log","Decision log"+(open?`<span class="badge">${open}</span>`:"")],["fun","Funnel"],["jny","Journey"]].map(t=>`<button aria-current="${tab===t[0]}" data-t="${t[0]}"><i>${ICON[t[0]]}</i>${t[1]}</button>`).join("");
+$("#ptitle").textContent=PT[tab][0];$("#psub").textContent=PT[tab][1];$("#main").innerHTML=tab==="mon"?monitoring():tab==="asm"?assumptions():tab==="act"?actions():tab==="fun"?funnel():tab==="jny"?journey():log()}
 document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
 if(b.dataset.t){tab=b.dataset.t;render()}
 else if(b.dataset.v){S.view=b.dataset.v;render()}
