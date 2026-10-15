@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monitoring Demo (Synthetic Data)</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f6f7;--card:#fff;--ink:#17252f;--mute:#5b6b76;--line:#d9e0e4;--accent:#0c6e63;--accent-ink:#fff;--warn:#a96a0c;--bad:#b83b2e;--ok:#1f7a45;--tint:#e6f1ef;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181d;--card:#18232a;--ink:#e6edf0;--mute:#93a4ad;--line:#2b3a43;--accent:#3cb5a4;--accent-ink:#06211d;--warn:#e0a443;--bad:#ef7a6c;--ok:#5cc58a;--tint:#1b3430;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10181d;--card:#18232a;--ink:#e6edf0;--mute:#93a4ad;--line:#2b3a43;--accent:#3cb5a4;--accent-ink:#06211d;--warn:#e0a443;--bad:#ef7a6c;--ok:#5cc58a;--tint:#1b3430;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
+h1{font-size:1.4rem;margin:0}
+.banner{background:var(--tint);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem;color:var(--mute);margin-bottom:14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button{font:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.kpi b{display:block;font-size:1.6rem}
+.kpi span{color:var(--mute);font-size:.85rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:var(--card);color:var(--ink);border:0;padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.bad{color:var(--bad);font-weight:600}.ok{color:var(--ok)}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--mute);font-size:11px}
+.sl{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;margin-bottom:10px}
+.sl input{width:100%;accent-color:var(--accent)}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.8rem;font-weight:600;border:1px solid var(--line)}
+.st-Open{color:var(--warn)}.st-Accepted{color:var(--ok)}.st-Deferred{color:var(--mute)}.st-Dismissed{color:var(--bad)}
+.dec dl{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;margin:8px 0}
+.dec dt{color:var(--mute)}.dec dd{margin:0}
+.dec ul{margin:6px 0 10px;padding-left:18px;color:var(--mute);font-size:.88rem}
+.badge{background:var(--bad);color:#fff;border-radius:99px;font-size:.75rem;padding:1px 7px;margin-left:6px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+.flow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.step{flex:1 1 130px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;cursor:pointer;color:var(--ink)}.step[aria-pressed="true"]{border-color:var(--accent);background:var(--tint)}.step b{display:block}.step span{color:var(--mute);font-size:.85rem}.bar{background:var(--accent);height:26px;border-radius:4px;min-width:2px}.frow{display:grid;grid-template-columns:120px 1fr 150px;gap:10px;align-items:center;margin-bottom:8px}
+@media (max-width:640px){.sl,.frow{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Program Monitoring Demo</h1><button class="btn alt" id="reset">Reset demo</button></header>
+<div class="banner">All data on this page is synthetic. Scenario results are illustrative, not guaranteed outcomes.</div>
+<nav role="tablist" id="tabs"></nav>
+<main id="main"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const HIST={file:"historical_2025.csv",asof:"2026-01-06",labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+plan:[80,82,84,86,88,90,92,94,96,98,100,102],act:[78,83,81,88,85,74,93,108,90,99,104,101]};
+const ONG={labels:["Jan 26","Feb 26","Mar 26","Apr 26","May 26","Jun 26"],plan:[104,106,108,110,112,114],act:[103,94,109,92,115,120],
+files:["feed_2026-01.csv","feed_2026-02.csv","feed_2026-03.csv","feed_2026-04.csv","feed_2026-05.csv","feed_2026-06.csv"],
+recv:["2026-02-04","2026-03-05","2026-04-06","2026-05-05","2026-06-04","2026-07-06"]};
+const TH=0.10, POP=12000, RATE=0.22;
+const RULE="Variance beyond +/-10% vs plan";
+let S, tab="mon";
+const $=s=>document.querySelector(s);
+const pct=(a,p)=>(a-p)/p;
+const fp=v=>(v>=0?"+":"")+(v*100).toFixed(1)+"%";
+const now=()=>"Visitor, "+new Date().toLocaleTimeString();
+function seed(){return [
+{id:"D-001",source:"historical_2025.csv, Jun 2025",rule:RULE,rationale:"Actual 74 vs plan 90 (-17.8%). Seasonal dip suspected; outreach schedule to be reviewed.",owner:"Program analyst",status:"Accepted",history:["2025-07-08: Flagged by rule","2025-07-10: Accepted by Program lead"]},
+{id:"D-002",source:"historical_2025.csv, Aug 2025",rule:RULE,rationale:"Actual 108 vs plan 94 (+14.9%). Possible duplicate batch; verify before changing plan.",owner:"Data steward",status:"Deferred",history:["2025-09-09: Flagged by rule","2025-09-11: Deferred pending source check"]},
+{id:"D-003",source:"feed_2026-02.csv, Feb 26",rule:RULE,rationale:"Actual 94 vs plan 106 (-11.3%). Review cause and decide on follow-up.",owner:"Program analyst",status:"Open",history:["2026-03-05: Flagged by rule on file arrival"]}]}
+function init(){S={view:"hist",arrived:2,j:0,dec:seed()};}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("on"),2200)}
+function exc(d,n){const o=[];for(let i=0;i<n;i++){if(Math.abs(pct(d.act[i],d.plan[i]))>TH)o.push(i)}return o}
+function chart(l,p,a,n,ex,ymin,ymax){
+const W=640,H=240,P=34,x=i=>P+(n>1?i*(W-2*P)/(n-1):(W-2*P)/2),y=v=>H-P-(v-ymin)/(ymax-ymin)*(H-2*P);
+let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Actual versus plan by period">`;
+for(let k=0;k<=4;k++){const v=ymin+(ymax-ymin)*k/4;s+=`<line x1="${P}" x2="${W-P}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="4" y="${y(v)+4}">${Math.round(v)}</text>`}
+const path=arr=>arr.slice(0,n).map((v,i)=>(i?"L":"M")+x(i)+" "+y(v)).join(" ");
+s+=`<path d="${path(p)}" fill="none" stroke="var(--mute)" stroke-width="2" stroke-dasharray="6 4"/><path d="${path(a)}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+for(let i=0;i<n;i++){const e=ex.includes(i);s+=`<circle cx="${x(i)}" cy="${y(a[i])}" r="${e?6:3.5}" fill="${e?"var(--bad)":"var(--accent)"}"/><text x="${x(i)}" y="${H-10}" text-anchor="middle">${l[i]}</text>`}
+return s+`<text x="${W-P}" y="14" text-anchor="end">dashed = plan, solid = actual, red = exception</text></svg>`}
+function addDecision(src,rationale,owner,rule){const id="D-"+String(S.dec.length+1).padStart(3,"0");
+S.dec.push({id,source:src,rule,rationale,owner,status:"Open",history:[now()+": Created"]});return id}
+function monitoring(){
+const h=S.view==="hist",d=h?HIST:ONG,n=h?12:S.arrived,ex=exc(d,n),i=n-1;
+const ymin=60,ymax=130,last=d.act[i],dv=pct(last,d.plan[i]);
+let files="";
+if(h)files=`<tr><td>${HIST.file}</td><td>Jan-Dec 2025</td><td>${HIST.asof}</td><td class="ok">Loaded</td></tr>`;
+else for(let k=0;k<n;k++)files+=`<tr><td>${ONG.files[k]}</td><td>${ONG.labels[k]}</td><td>${ONG.recv[k]}</td><td class="ok">Loaded</td></tr>`;
+const exl=ex.length?ex.map(k=>`<tr><td>${d.labels[k]}</td><td>${d.act[k]}</td><td>${d.plan[k]}</td><td class="bad">${fp(pct(d.act[k],d.plan[k]))}</td></tr>`).join(""):`<tr><td colspan="4">No exceptions in this view.</td></tr>`;
+return `<div class="row"><div class="seg" role="group" aria-label="Period"><button aria-pressed="${h}" data-v="hist">Historical analysis</button><button aria-pressed="${!h}" data-v="ong">Ongoing monitoring</button></div>
+${h?"":`<button class="btn" id="arrive" ${S.arrived>=6?"disabled":""}>${S.arrived>=6?"All files received":"Receive next data file"}</button>`}</div>
+<div class="kpis"><div class="kpi"><b>${last}</b><span>Latest actual (${d.labels[i]})</span></div><div class="kpi"><b class="${Math.abs(dv)>TH?"bad":"ok"}">${fp(dv)}</b><span>vs plan (${d.plan[i]})</span></div><div class="kpi"><b>${ex.length}</b><span>Exceptions (beyond +/-10%)</span></div><div class="kpi"><b>${h?HIST.asof:ONG.recv[i]}</b><span>Latest source date</span></div></div>
+<div class="card"><h2 style="margin-top:0;font-size:1.05rem">Actual vs plan: completed outreach per month</h2>${chart(d.labels,d.plan,d.act,n,ex,ymin,ymax)}</div>
+<div class="card scroll"><h2 style="margin-top:0;font-size:1.05rem">Source files</h2><table><tr><th>File</th><th>Period</th><th>Source date</th><th>Status</th></tr>${files}</table></div>
+<div class="card scroll"><h2 style="margin-top:0;font-size:1.05rem">Exceptions</h2><table><tr><th>Period</th><th>Actual</th><th>Plan</th><th>Variance</th></tr>${exl}</table></div>`}
+function scenario(){const a=S.a||(S.a={ad:40,de:2,uc:25});
+const act=12-a.de,reached=Math.round(POP*a.ad/100*act/12),cost=reached*a.uc,comp=Math.round(reached*RATE);return{a,reached,cost,comp,cpc:comp?cost/comp:0}}
+function asmOut(){const r=scenario(),a=r.a,max=Math.round(POP*0.9*RATE),W=640,H=200,P=34;
+const pts=[];let c=0;for(let m=1;m<=12;m++){if(m>a.de)c+=POP*a.ad/100/12*RATE;pts.push(c)}
+const x=i=>P+i*(W-2*P)/11,y=v=>H-P-v/max*(H-2*P);
+let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative completions scenario"><line x1="${P}" x2="${W-P}" y1="${H-P}" y2="${H-P}" stroke="var(--line)"/><path d="${pts.map((v,i)=>(i?"L":"M")+x(i)+" "+y(v)).join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+for(let m=0;m<12;m+=1)s+=`<text x="${x(m)}" y="${H-10}" text-anchor="middle">M${m+1}</text>`;
+s+=`<text x="${P}" y="14">Illustrative cumulative completions</text></svg>`;
+return `<div class="kpis"><div class="kpi"><b>${r.reached.toLocaleString()}</b><span>People reached (illustrative)</span></div><div class="kpi"><b>${r.comp.toLocaleString()}</b><span>Completions (assumes ${RATE*100}% completion rate)</span></div><div class="kpi"><b>$${r.cost.toLocaleString()}</b><span>Total cost</span></div><div class="kpi"><b>$${r.cpc.toFixed(0)}</b><span>Cost per completion</span></div></div>${s}`}
+function assumptions(){const a=(S.a||(S.a={ad:40,de:2,uc:25}));
+return `<div class="card"><p style="margin-top:0">Change the assumptions to see an <b>illustrative</b> scenario. These are not guaranteed results. Eligible population: ${POP.toLocaleString()} (synthetic).</p>
+<div class="sl"><label for="ad">Adoption</label><input id="ad" type="range" min="10" max="90" step="5" value="${a.ad}"><output id="adv">${a.ad}%</output></div>
+<div class="sl"><label for="de">Start delay</label><input id="de" type="range" min="0" max="6" step="1" value="${a.de}"><output id="dev">${a.de} months</output></div>
+<div class="sl"><label for="uc">Unit cost</label><input id="uc" type="range" min="5" max="60" step="1" value="${a.uc}"><output id="ucv">$${a.uc}</output></div>
+<button class="btn" id="save">Record scenario in decision log</button></div>
+<div class="card" id="asmout">${asmOut()}</div>`}
+function log(){return `<p style="margin-top:0">Every action below adds a dated event to the record.</p>`+S.dec.map((d,i)=>`<div class="card dec"><div class="row" style="margin:0;justify-content:space-between"><b>${d.id}</b><span class="tag st-${d.status}">${d.status}</span></div>
+<dl><dt>Source</dt><dd>${d.source}</dd><dt>Rule</dt><dd>${d.rule}</dd><dt>Rationale</dt><dd>${d.rationale}</dd><dt>Owner</dt><dd>${d.owner}</dd></dl>
+<b style="font-size:.9rem">Event history</b><ul>${d.history.map(h=>`<li>${h}</li>`).join("")}</ul>
+<div class="row" style="margin:0">${["Accepted","Deferred","Dismissed"].map(s=>`<button class="btn ${s==="Accepted"?"":"alt"}" data-i="${i}" data-s="${s}" ${d.status===s?"disabled":""}>${s==="Accepted"?"Accept":s==="Deferred"?"Defer":"Dismiss"}</button>`).join("")}</div></div>`).join("")}
+const ACTIONS=[
+{key:"historical_2025.csv, Jun",title:"Review June 2025 outreach schedule",why:"Actual 74 vs plan 90 (-17.8%). Dips like this often line up with seasonal scheduling gaps, so check the calendar before changing the plan."},
+{key:"historical_2025.csv, Aug",title:"Verify August 2025 batch for duplicates",why:"Actual 108 vs plan 94 (+14.9%). Overshoots this large can come from a duplicate batch, so verify the source before updating the plan."},
+{key:"feed_2026-02.csv",title:"Investigate February 2026 shortfall",why:"Actual 94 vs plan 106 (-11.3%). Check whether the file arrived late or outreach was paused that month."},
+{key:"feed_2026-04.csv",title:"Rebalance outreach for April 2026",why:"Actual 92 vs plan 110 (-16.4%). Consider moving capacity from months running above plan."}];
+function actDo(k,s){const d=S.dec.find(x=>x.source.startsWith(k));if(!d)return;d.status=s;d.history.push(now()+": "+s+" from Suggested actions");render();toast(d.id+": "+s)}
+function actions(){return `<p style="margin-top:0">Suggested review actions are preconfigured. Explanations are scripted; no live AI model is used. Your choice updates the decision log.</p>`+ACTIONS.map(a=>{const d=S.dec.find(x=>x.source.startsWith(a.key));
+if(!d)return `<div class="card"><b>${a.title}</b><p style="color:var(--mute);margin:6px 0 0">Waiting for ${a.key}. Receive it on the Monitoring tab.</p></div>`;
+return `<div class="card"><div class="row" style="margin:0;justify-content:space-between"><b>${a.title}</b><span class="tag st-${d.status}">${d.status}</span></div><p>${a.why}</p><p style="color:var(--mute);font-size:.88rem;margin-top:0">Record ${d.id}. Suggested owner: ${d.owner}</p><div class="row" style="margin:0">${[["Accepted","Accept"],["Deferred","Defer"],["Dismissed","Dismiss"]].map(s=>`<button class="btn ${s[0]==="Accepted"?"":"alt"}" data-a="${a.key}" data-s2="${s[0]}" ${d.status===s[0]?"disabled":""}>${s[1]}</button>`).join("")}</div></div>`}).join("")}
+function funnel(){const r=scenario(),q=[1,.70,.55,.75,RATE/(.7*.55*.75)],nm=["Contacts","Offers","Accepted","Appointments","Completions"];let n=r.reached;const v=q.map((x,i)=>{if(i)n*=x;return Math.round(n)});v[4]=r.comp;
+return `<div class="banner">Simulated funnel. Numbers come from the assumptions you set (adoption ${r.a.ad}%, start delay ${r.a.de} months), not from real activity.</div><div class="card">`+nm.map((t,i)=>`<div class="frow"><span>${t}</span><div><div class="bar" style="width:${v[0]?Math.max(v[i]/v[0]*100,0.5):0}%"></div></div><span>${v[i].toLocaleString()}${i?" ("+(v[i-1]?Math.round(v[i]/v[i-1]*100):0)+"% of prior)":""}</span></div>`).join("")+`</div><button class="btn alt" data-t="asm">Change assumptions</button>`}
+function journey(){const ex=exc(HIST,12).length+exc(ONG,S.arrived).length,open=S.dec.filter(d=>d.status==="Open").length,acc=S.dec.filter(d=>d.status==="Accepted").length,ev=S.dec.reduce((s,d)=>s+d.history.length,0);
+const st=[["Data intake",(1+S.arrived)+" files received","Files arrive with source dates and are checked before use."],["Monitoring",ex+" exceptions flagged","Actual results are compared with plan using the +/-10% rule."],["Decision",open+" open decisions","Each exception becomes a record with rule, rationale and owner."],["Routing",acc+" actions accepted","Accepted actions go to the named owner for follow-up."],["Evidence",ev+" events logged","Every status change is dated in the event history."],["Reporting",S.dec.length+" decisions summarized","Evidence rolls up into a period report for reviewers."]];
+return `<p style="margin-top:0">Select a step. Counts update as you use the other tabs.</p><div class="flow">`+st.map((s,i)=>`<button class="step" aria-pressed="${S.j===i}" data-j="${i}"><b>${i+1}. ${s[0]}</b><span>${s[1]}</span></button>`).join("")+`</div><div class="card"><b>${st[S.j][0]}</b><p style="margin-bottom:0">${st[S.j][2]}</p></div>`}
+function render(){
+const open=S.dec.filter(d=>d.status==="Open").length;
+$("#tabs").innerHTML=[["mon","Monitoring"],["asm","Assumptions"],["act","Suggested actions"],["log","Decision log"+(open?`<span class="badge">${open}</span>`:"")],["fun","Funnel"],["jny","Journey"]].map(t=>`<button role="tab" aria-selected="${tab===t[0]}" data-t="${t[0]}">${t[1]}</button>`).join("");
+$("#main").innerHTML=tab==="mon"?monitoring():tab==="asm"?assumptions():tab==="act"?actions():tab==="fun"?funnel():tab==="jny"?journey():log()}
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+if(b.dataset.t){tab=b.dataset.t;render()}
+else if(b.dataset.v){S.view=b.dataset.v;render()}
+else if(b.id==="arrive"&&S.arrived<6){const k=S.arrived;S.arrived++;
+if(Math.abs(pct(ONG.act[k],ONG.plan[k]))>TH){const v=pct(ONG.act[k],ONG.plan[k]);
+const id=addDecision(ONG.files[k]+", "+ONG.labels[k],`Actual ${ONG.act[k]} vs plan ${ONG.plan[k]} (${fp(v)}). Review cause and decide on follow-up.`,"Program analyst",RULE);
+toast(ONG.files[k]+" received: exception flagged as "+id)}else toast(ONG.files[k]+" received: within tolerance");render()}
+else if(b.dataset.s){const d=S.dec[+b.dataset.i];d.status=b.dataset.s;d.history.push(now()+": "+b.dataset.s);render()}
+else if(b.id==="save"){const r=scenario(),a=r.a;const id=addDecision("Scenario tool (illustrative)",`Adoption ${a.ad}%, start delay ${a.de} months, unit cost $${a.uc}: about ${r.comp.toLocaleString()} completions at $${r.cost.toLocaleString()}. Illustrative only.`,"Finance lead","Assumption review before approval");toast("Scenario recorded as "+id);render()}
+else if(b.dataset.a){actDo(b.dataset.a,b.dataset.s2)}
+else if(b.dataset.j){S.j=+b.dataset.j;render()}
+else if(b.id==="reset"){init();tab="mon";render();toast("Demo reset")}});
+document.addEventListener("input",e=>{const t=e.target;if(!["ad","de","uc"].includes(t.id))return;
+S.a[t.id]=+t.value;$("#adv").textContent=S.a.ad+"%";$("#dev").textContent=S.a.de+" months";$("#ucv").textContent="$"+S.a.uc;$("#asmout").innerHTML=asmOut()});
+init();render();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "note": "Synthetic data only. No real people, patients or organizations. Mirrors the values embedded in index.html.",
+  "metric": "Completed outreach per month",
+  "variance_rule": "Variance beyond +/-10% vs plan",
+  "eligible_population": 12000,
+  "completion_rate": 0.22,
+  "funnel_rates": {"offers_of_contacts": 0.70, "accepted_of_offers": 0.55, "appointments_of_accepted": 0.75, "completions_of_appointments": 0.7619},
+  "historical": {
+    "file": "historical_2025.csv", "source_date": "2026-01-06",
+    "periods": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    "plan": [80,82,84,86,88,90,92,94,96,98,100,102],
+    "actual": [78,83,81,88,85,74,93,108,90,99,104,101],
+    "exceptions": ["Jun (-17.8%)", "Aug (+14.9%)"]
+  },
+  "ongoing": {
+    "files": ["feed_2026-01.csv","feed_2026-02.csv","feed_2026-03.csv","feed_2026-04.csv","feed_2026-05.csv","feed_2026-06.csv"],
+    "received": ["2026-02-04","2026-03-05","2026-04-06","2026-05-05","2026-06-04","2026-07-06"],
+    "periods": ["Jan 26","Feb 26","Mar 26","Apr 26","May 26","Jun 26"],
+    "plan": [104,106,108,110,112,114],
+    "actual": [103,94,109,92,115,120],
+    "exceptions": ["Feb 26 (-11.3%)", "Apr 26 (-16.4%)"]
+  },
+  "seed_decisions": [
+    {"id":"D-001","source":"historical_2025.csv, Jun 2025","owner":"Program analyst","status":"Accepted"},
+    {"id":"D-002","source":"historical_2025.csv, Aug 2025","owner":"Data steward","status":"Deferred"},
+    {"id":"D-003","source":"feed_2026-02.csv, Feb 26","owner":"Program analyst","status":"Open"}
+  ]
+}
